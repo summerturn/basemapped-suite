@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Sidebar from './components/layout/Sidebar'
 import TopBar from './components/layout/TopBar'
 import DashboardPage from './pages/DashboardPage'
-import UploadPage from './pages/UploadPage'
-import ValidationDetailPage from './pages/ValidationDetailPage'
-import ProjectListPage from './pages/ProjectListPage'
-import TeamSettingsPage from './pages/TeamSettingsPage'
+import ProjectsPage from './pages/ProjectsPage'
+import RunsPage from './pages/RunsPage'
+import AssertionsPage from './pages/AssertionsPage'
+import AnalyticsPage from './pages/AnalyticsPage'
 
 function App() {
   return (
@@ -17,10 +17,10 @@ function App() {
           <main className="flex-1 overflow-y-auto p-6">
             <Routes>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/upload" element={<UploadPage />} />
-              <Route path="/validations/:id" element={<ValidationDetailPage />} />
-              <Route path="/projects" element={<ProjectListPage />} />
-              <Route path="/team" element={<TeamSettingsPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/runs" element={<RunsPage />} />
+              <Route path="/assertions" element={<AssertionsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
             </Routes>
           </main>
         </div>
