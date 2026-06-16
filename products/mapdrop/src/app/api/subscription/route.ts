@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/clerk-stub/server';
 
 export async function GET() {
   const { userId } = await auth();

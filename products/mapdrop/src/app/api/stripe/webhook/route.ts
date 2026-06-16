@@ -1,4 +1,4 @@
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@/lib/clerk-stub/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { SubscriptionTier } from "@/lib/subscription/tiers";

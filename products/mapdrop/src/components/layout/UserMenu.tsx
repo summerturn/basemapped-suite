@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser, useClerk } from "@/lib/clerk-stub";
 import Link from "next/link";
 import { useSubscription } from "@/hooks/useSubscription";
 

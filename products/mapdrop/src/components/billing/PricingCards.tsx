@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/clerk-stub";
 import { useSubscription } from "@/hooks/useSubscription";
 import { TIER_LIMITS } from "@/lib/subscription/tiers";
 

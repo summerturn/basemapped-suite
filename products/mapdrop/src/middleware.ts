@@ -1,22 +1,11 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/pricing',
-  '/share/(.*)',
-  '/api/upload',
-  '/api/maps/(.*)/tile/(.*)',
-  '/api/webhooks/(.*)',
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    const { userId, redirectToSignIn } = await auth();
-    if (!userId) {
-      return redirectToSignIn({ returnBackUrl: req.url });
-    }
-  }
-});
+// Clerk is disabled until production publishable/secret keys are configured.
+// All MapDrop routes are treated as public for now; the dashboard uses mock data.
+export default function middleware(_req: NextRequest) {
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ['/((?!_next|.*\\..*).*)'],
