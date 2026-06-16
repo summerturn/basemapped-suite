@@ -1,0 +1,40 @@
+CREATE TABLE IF NOT EXISTS plots (
+  id TEXT PRIMARY KEY,
+  plot_id TEXT NOT NULL,
+  section TEXT NOT NULL,
+  status TEXT NOT NULL,
+  occupant TEXT NOT NULL,
+  deed TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS deeds (
+  id TEXT PRIMARY KEY,
+  deed_id TEXT NOT NULL,
+  owner TEXT NOT NULL,
+  plot TEXT NOT NULL,
+  issued TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS families (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  members INTEGER NOT NULL,
+  plots TEXT NOT NULL,
+  portal TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id TEXT PRIMARY KEY,
+  customer_id TEXT NOT NULL,
+  email TEXT,
+  product TEXT NOT NULL DEFAULT 'eternalmap',
+  status TEXT NOT NULL,
+  price_id TEXT,
+  subscription_id TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

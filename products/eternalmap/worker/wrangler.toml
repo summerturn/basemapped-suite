@@ -1,0 +1,11 @@
+name = "eternalmap-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "eternalmap-db"
+database_id = "50c31535-694b-4fe4-87ac-a8695e975487"
+
+[vars]
+ENVIRONMENT = "production"

@@ -1,0 +1,11 @@
+name = "geoverify-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "geoverify-db"
+database_id = "370bba83-c204-4f09-9445-e317b55f2262"
+
+[vars]
+ENVIRONMENT = "production"

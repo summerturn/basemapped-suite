@@ -1,0 +1,11 @@
+name = "aquamap-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aquamap-db"
+database_id = "eccfd7c3-8c99-44b7-ab90-7fb436e109dc"
+
+[vars]
+ENVIRONMENT = "production"
