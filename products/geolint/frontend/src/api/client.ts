@@ -1,24 +1,10 @@
-/**
- * GeoLint Static Adapter
- * Replaces backend-dependent features with client-side alternatives.
- * This is a drop-in replacement for src/api/client.ts when building for static deployment.
- */
-
 import axios, { AxiosError, AxiosInstance } from 'axios'
 
-// @ts-ignore — Vite env types may not be configured
-const WORKER_URL: string = import.meta.env?.VITE_WORKER_URL || 'https://basemapped-geo-worker.YOUR_SUBDOMAIN.workers.dev'
-
 const client: AxiosInstance = axios.create({
-  baseURL: WORKER_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'https://geolint-worker.summerlyntds.workers.dev/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
-})
-
-// In static mode, auth is disabled. All requests are anonymous.
-client.interceptors.request.use((config) => {
-  return config
 })
 
 client.interceptors.response.use(
@@ -32,7 +18,7 @@ client.interceptors.response.use(
 
 export default client
 
-// Client-side GeoJSON validator (replaces backend validation)
+// Client-side GeoJSON validator (used before upload)
 export function validateGeoJSONClient(geojson: unknown): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = []
   const warnings: string[] = []
@@ -75,7 +61,6 @@ export function validateGeoJSONClient(geojson: unknown): { valid: boolean; error
     }
   }
 
-  // Bounding box warning
   if (!g.bbox) {
     warnings.push('GeoJSON does not include a bbox property')
   }

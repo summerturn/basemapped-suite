@@ -1,49 +1,37 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Upload, CheckCircle, AlertTriangle, Activity } from 'lucide-react'
 import * as echarts from 'echarts'
-import { useEffect, useRef } from 'react'
 import { formatDistanceToNow } from 'date-fns'
+import client from '../api/client'
 import type { ValidationJob } from '../types'
-
-const mockJobs: ValidationJob[] = [
-  {
-    id: '1',
-    dataset_id: 'd1',
-    rule_set: 'standard',
-    status: 'completed',
-    overall_score: 92,
-    grade: 'A-',
-    progress_pct: 100,
-    created_at: '2024-01-15T10:00:00Z',
-    completed_at: '2024-01-15T10:05:00Z',
-  },
-  {
-    id: '2',
-    dataset_id: 'd2',
-    rule_set: 'strict',
-    status: 'completed',
-    overall_score: 85,
-    grade: 'B',
-    progress_pct: 100,
-    created_at: '2024-01-14T14:00:00Z',
-    completed_at: '2024-01-14T14:08:00Z',
-  },
-  {
-    id: '3',
-    dataset_id: 'd3',
-    rule_set: 'standard',
-    status: 'failed',
-    overall_score: 0,
-    grade: 'F',
-    progress_pct: 0,
-    created_at: '2024-01-13T09:00:00Z',
-  },
-]
 
 export default function DashboardPage() {
   const chartRef = useRef<HTMLDivElement>(null)
+  const [jobs, setJobs] = useState<ValidationJob[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    client.get('/validations')
+      .then((res) => {
+        const items = res.data.items || []
+        setJobs(items.map((v: any) => ({
+          id: v.id,
+          dataset_id: v.dataset_id,
+          rule_set: v.rule_set,
+          status: v.status,
+          overall_score: v.score,
+          grade: v.grade,
+          progress_pct: v.status === 'completed' ? 100 : 0,
+          created_at: v.created_at,
+          completed_at: v.completed_at,
+        })))
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [])
 
   useEffect(() => {
     if (!chartRef.current) return
@@ -91,15 +79,21 @@ export default function DashboardPage() {
     }
   }, [])
 
-  const stats = useMemo(
-    () => [
-      { label: 'Validations', value: 124, icon: Activity, color: 'text-accent' },
-      { label: 'Passed', value: 98, icon: CheckCircle, color: 'text-green-500' },
-      { label: 'Warnings', value: 18, icon: AlertTriangle, color: 'text-yellow-500' },
-      { label: 'Failed', value: 8, icon: AlertTriangle, color: 'text-red-500' },
-    ],
-    []
-  )
+  const stats = useMemo(() => {
+    const completed = jobs.filter((j) => j.status === 'completed')
+    const passed = completed.filter((j) => (j.overall_score || 0) >= 70)
+    const warnings = completed.filter((j) => {
+      const s = j.overall_score || 0
+      return s >= 60 && s < 70
+    })
+    const failed = completed.filter((j) => (j.overall_score || 0) < 60 || j.status === 'failed')
+    return [
+      { label: 'Validations', value: jobs.length, icon: Activity, color: 'text-accent' },
+      { label: 'Passed', value: passed.length, icon: CheckCircle, color: 'text-green-500' },
+      { label: 'Warnings', value: warnings.length, icon: AlertTriangle, color: 'text-yellow-500' },
+      { label: 'Failed', value: failed.length, icon: AlertTriangle, color: 'text-red-500' },
+    ]
+  }, [jobs])
 
   return (
     <div className="space-y-6">
@@ -136,8 +130,10 @@ export default function DashboardPage() {
 
         <div className="card">
           <h2 className="mb-4 text-lg font-semibold">Recent Validations</h2>
+          {loading && <p className="text-sm text-gray-500">Loading...</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <div className="space-y-3">
-            {mockJobs.map((job) => (
+            {jobs.map((job) => (
               <Link
                 key={job.id}
                 to={`/validations/${job.id}`}

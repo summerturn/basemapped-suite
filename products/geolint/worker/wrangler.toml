@@ -1,0 +1,11 @@
+name = "geolint-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "geolint-db"
+database_id = "abba7919-ae87-4adc-8ebf-f2c1f8dda421"
+
+[vars]
+ENVIRONMENT = "production"
