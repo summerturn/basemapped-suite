@@ -1,0 +1,50 @@
+{
+  "name": "mapdrop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "next": "14.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@prisma/client": "^5.10.0",
+    "prisma": "^5.10.0",
+    "maplibre-gl": "^4.0.0",
+    "pmtiles": "^3.0.0",
+    "supercluster": "^8.0.0",
+    "papaparse": "^5.4.0",
+    "xlsx": "^0.18.5",
+    "react-dropzone": "^14.2.0",
+    "bullmq": "^5.0.0",
+    "ioredis": "^5.3.0",
+    "@clerk/nextjs": "^5.0.0",
+    "stripe": "^14.0.0",
+    "lucide-react": "^0.344.0",
+    "tailwind-merge": "^2.2.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/papaparse": "^5.3.0",
+    "@types/supercluster": "^7.1.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.2.0",
+    "tsx": "^4.7.0"
+  }
+}

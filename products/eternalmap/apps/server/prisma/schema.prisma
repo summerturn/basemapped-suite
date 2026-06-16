@@ -1,0 +1,372 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                   String    @id @default(uuid())
+  name                 String
+  slug                 String    @unique
+  subscriptionStatus   String    @default("active") @map("subscription_status")
+  subscriptionExpiresAt DateTime? @map("subscription_expires_at")
+  settings             Json      @default("{}")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
+
+  users       User[]
+  cemeteries  Cemetery[]
+  sections    Section[]
+  plots       Plot[]
+  persons     Person[]
+  graves      Grave[]
+  photos      Photo[]
+  documents   Document[]
+  workOrders  WorkOrder[]
+  changeLogs  ChangeLog[]
+  auditLogs   AuditLog[]
+
+  @@index([slug])
+  @@index([subscriptionStatus])
+  @@map("tenants")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  email         String
+  passwordHash  String    @map("password_hash")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  role          String    @default("viewer")
+  isActive      Boolean   @default(true) @map("is_active")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  photos     Photo[]
+  documents  Document[]
+  workOrders WorkOrder[]
+  auditLogs  AuditLog[]
+  changeLogs ChangeLog[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([tenantId, email])
+  @@map("users")
+}
+
+model Cemetery {
+  id              String    @id @default(uuid())
+  tenantId        String    @map("tenant_id")
+  name            String
+  code            String?
+  address         String?
+  city            String?
+  state           String?
+  postalCode      String?   @map("postal_code")
+  country         String    @default("USA")
+  phone           String?
+  email           String?
+  website         String?
+  boundary        Unsupported("geometry(Polygon,4326)")?
+  centerPoint     Unsupported("geometry(Point,4326)")?  @map("center_point")
+  totalAcres      Decimal?  @map("total_acres")
+  establishedDate DateTime? @map("established_date") @db.Date
+  timezone        String    @default("America/New_York")
+  settings        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  sections   Section[]
+  plots      Plot[]
+  workOrders WorkOrder[]
+
+  @@index([tenantId])
+  @@index([boundary], type: Gist)
+  @@index([centerPoint], type: Gist)
+  @@map("cemeteries")
+}
+
+model Section {
+  id          String    @id @default(uuid())
+  tenantId    String    @map("tenant_id")
+  cemeteryId  String    @map("cemetery_id")
+  name        String
+  code        String
+  sectionType String    @default("standard") @map("section_type")
+  boundary    Unsupported("geometry(Polygon,4326)")?
+  centerPoint Unsupported("geometry(Point,4326)")?  @map("center_point")
+  totalPlots  Int       @default(0) @map("total_plots")
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  cemetery Cemetery @relation(fields: [cemeteryId], references: [id])
+  plots    Plot[]
+
+  @@index([tenantId])
+  @@index([cemeteryId])
+  @@index([boundary], type: Gist)
+  @@index([centerPoint], type: Gist)
+  @@map("sections")
+}
+
+model Plot {
+  id                String    @id @default(uuid())
+  tenantId          String    @map("tenant_id")
+  cemeteryId        String    @map("cemetery_id")
+  sectionId         String    @map("section_id")
+  plotNumber        String    @map("plot_number")
+  rowNumber         String?   @map("row_number")
+  plotType          String    @default("single") @map("plot_type")
+  status            String    @default("available")
+  boundary          Unsupported("geometry(Polygon,4326)")?
+  centerPoint       Unsupported("geometry(Point,4326)")? @map("center_point")
+  depth             Decimal?
+  width             Decimal?
+  length            Decimal?
+  price             Decimal?  @db.Decimal(12, 2)
+  currency          String    @default("USD")
+  maxOccupants      Int       @default(1) @map("max_occupants")
+  currentOccupants  Int       @default(0) @map("current_occupants")
+  orientation       String?
+  hasVault          Boolean?  @default(false) @map("has_vault")
+  isCornerPlot      Boolean?  @default(false) @map("is_corner_plot")
+  notes             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  cemetery   Cemetery    @relation(fields: [cemeteryId], references: [id])
+  section    Section     @relation(fields: [sectionId], references: [id])
+  graves     Grave[]
+  workOrders WorkOrder[]
+
+  @@unique([tenantId, cemeteryId, sectionId, plotNumber])
+  @@index([tenantId])
+  @@index([cemeteryId])
+  @@index([sectionId])
+  @@index([tenantId, status])
+  @@index([boundary], type: Gist)
+  @@index([centerPoint], type: Gist)
+  @@map("plots")
+}
+
+model Person {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  middleName    String?   @map("middle_name")
+  maidenName    String?   @map("maiden_name")
+  personType    String    @default("deceased") @map("person_type")
+  dateOfBirth   DateTime? @map("date_of_birth") @db.Date
+  dateOfDeath   DateTime? @map("date_of_death") @db.Date
+  dateOfBurial  DateTime? @map("date_of_burial") @db.Date
+  birthPlace    String?   @map("birth_place")
+  deathPlace    String?   @map("death_place")
+  bio           String?
+  religion      String?
+  militaryBranch String?  @map("military_branch")
+  militaryRank  String?   @map("military_rank")
+  obituaryUrl   String?   @map("obituary_url")
+  contactEmail  String?   @map("contact_email")
+  contactPhone  String?   @map("contact_phone")
+  address       String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id])
+  graves Grave[]
+
+  @@index([tenantId])
+  @@index([tenantId, lastName, firstName])
+  @@index([tenantId, dateOfBurial])
+  @@map("persons")
+}
+
+model Grave {
+  id                String    @id @default(uuid())
+  tenantId          String    @map("tenant_id")
+  plotId            String    @map("plot_id")
+  personId          String?   @map("person_id")
+  graveNumber       String?   @map("grave_number")
+  gpsLocation       Unsupported("geometry(Point,4326)")? @map("gps_location")
+  depth             Decimal?
+  headstoneType     String?   @map("headstone_type")
+  headstoneInscription String? @map("headstone_inscription")
+  headstoneMaterial String?   @map("headstone_material")
+  hasVase           Boolean?  @default(false) @map("has_vase")
+  hasLights         Boolean?  @default(false) @map("has_lights")
+  hasPhoto          Boolean?  @default(false) @map("has_photo")
+  condition         String    @default("good")
+  conditionNotes    String?   @map("condition_notes")
+  burialDate        DateTime? @map("burial_date") @db.Date
+  exhumedDate       DateTime? @map("exhumed_date") @db.Date
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id])
+  plot   Plot    @relation(fields: [plotId], references: [id])
+  person Person? @relation(fields: [personId], references: [id])
+
+  @@index([tenantId])
+  @@index([plotId])
+  @@index([personId])
+  @@index([gpsLocation], type: Gist)
+  @@map("graves")
+}
+
+model Photo {
+  id               String    @id @default(uuid())
+  tenantId         String    @map("tenant_id")
+  entityType       String    @map("entity_type")
+  entityId         String    @map("entity_id")
+  fileName         String    @map("file_name")
+  fileSize         Int       @map("file_size")
+  mimeType         String    @map("mime_type")
+  storageKey       String    @map("storage_key")
+  storageProvider  String    @default("minio") @map("storage_provider")
+  caption          String?
+  takenAt          DateTime? @map("taken_at")
+  gpsLocation      Unsupported("geometry(Point,4326)")? @map("gps_location")
+  uploadedBy       String?   @map("uploaded_by")
+  isPrimary        Boolean?  @default(false) @map("is_primary")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User?  @relation(fields: [uploadedBy], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, entityType, entityId])
+  @@index([gpsLocation], type: Gist)
+  @@map("photos")
+}
+
+model Document {
+  id              String    @id @default(uuid())
+  tenantId        String    @map("tenant_id")
+  entityType      String    @map("entity_type")
+  entityId        String    @map("entity_id")
+  documentType    String    @map("document_type")
+  title           String
+  fileName        String?   @map("file_name")
+  fileSize        Int?      @map("file_size")
+  mimeType        String?   @map("mime_type")
+  storageKey      String?   @map("storage_key")
+  storageProvider String    @default("minio") @map("storage_provider")
+  issuedDate      DateTime? @map("issued_date") @db.Date
+  expiryDate      DateTime? @map("expiry_date") @db.Date
+  notes           String?
+  createdBy       String?   @map("created_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User?  @relation(fields: [createdBy], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, entityType, entityId])
+  @@map("documents")
+}
+
+model WorkOrder {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  cemeteryId    String    @map("cemetery_id")
+  plotId        String?   @map("plot_id")
+  graveId       String?   @map("grave_id")
+  woNumber      String    @map("wo_number")
+  workType      String    @map("work_type")
+  priority      String    @default("medium")
+  status        String    @default("open")
+  description   String
+  scheduledDate DateTime? @map("scheduled_date") @db.Date
+  completedDate DateTime? @map("completed_date") @db.Date
+  assignedTo    String?   @map("assigned_to")
+  cost          Decimal?  @db.Decimal(12, 2)
+  vendorName    String?   @map("vendor_name")
+  locationPoint Unsupported("geometry(Point,4326)")? @map("location_point")
+  createdBy     String?   @map("created_by")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  tenant   Tenant  @relation(fields: [tenantId], references: [id])
+  cemetery Cemetery @relation(fields: [cemeteryId], references: [id])
+  plot     Plot?   @relation(fields: [plotId], references: [id])
+  user     User?   @relation(fields: [assignedTo], references: [id])
+
+  @@unique([tenantId, woNumber])
+  @@index([tenantId])
+  @@index([cemeteryId])
+  @@index([tenantId, status])
+  @@index([locationPoint], type: Gist)
+  @@map("work_orders")
+}
+
+model AuditLog {
+  id         String    @id @default(uuid())
+  tenantId   String?   @map("tenant_id")
+  userId     String?   @map("user_id")
+  action     String
+  tableName  String    @map("table_name")
+  recordId   String?   @map("record_id")
+  oldValues  Json?     @map("old_values")
+  newValues  Json?     @map("new_values")
+  ipAddress  String?   @map("ip_address")
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([tableName, recordId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model ChangeLog {
+  id                  String    @id @default(uuid())
+  tenantId            String    @map("tenant_id")
+  tableName           String    @map("table_name")
+  recordId            String    @map("record_id")
+  operation           String
+  version             Int       @default(1)
+  checksum            String?
+  changedBy           String?   @map("changed_by")
+  deviceId            String?   @map("device_id")
+  changedAt           DateTime  @default(now()) @map("changed_at")
+  payload             Json
+  isConflicted        Boolean   @default(false) @map("is_conflicted")
+  conflictResolvedAt  DateTime? @map("conflict_resolved_at")
+  conflictResolvedBy  String?   @map("conflict_resolved_by")
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+  user   User?   @relation(fields: [changedBy], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, tableName, recordId])
+  @@index([tenantId, tableName, recordId, version])
+  @@index([tenantId, changedAt])
+  @@index([tenantId, isConflicted])
+  @@map("change_log")
+}

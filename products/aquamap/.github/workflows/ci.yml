@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: aquamap
+          POSTGRES_PASSWORD: aquamap_test_pass
+          POSTGRES_DB: aquamap_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run migrations
+        working-directory: backend
+        env:
+          DATABASE_URL: postgres://aquamap:aquamap_test_pass@localhost:5432/aquamap_test
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret-key-minimum-32-characters
+          JWT_REFRESH_SECRET: test-refresh-secret-key-minimum-32-characters
+        run: npm run migrate
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgres://aquamap:aquamap_test_pass@localhost:5432/aquamap_test
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret-key-minimum-32-characters
+          JWT_REFRESH_SECRET: test-refresh-secret-key-minimum-32-characters
+          REDIS_URL: redis://localhost:6379
+        run: npm run test:run
+
+      - name: Typecheck
+        working-directory: backend
+        run: npm run typecheck
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Build backend Docker image
+        run: docker build -t aquamap-backend:${{ github.sha }} ./backend
+
+  dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install dashboard dependencies
+        working-directory: dashboard
+        run: npm ci
+
+      - name: Build dashboard
+        working-directory: dashboard
+        run: npm run build
+
+      - name: Build dashboard Docker image
+        run: docker build -t aquamap-dashboard:${{ github.sha }} ./dashboard

@@ -1,0 +1,19 @@
+.geolint_validate:
+  image: geolint/cli:latest
+  variables:
+    GEOLINT_API_KEY: "$GEOLINT_API_KEY"
+    GEOLINT_RULE_SET: "standard"
+    GEOLINT_FAIL_THRESHOLD: "80"
+    GEOLINT_FILES: "**/*.geojson"
+  script:
+    - geolint validate --files "$GEOLINT_FILES" --rule-set "$GEOLINT_RULE_SET" --fail-threshold "$GEOLINT_FAIL_THRESHOLD"
+  artifacts:
+    when: always
+    reports:
+      junit: geolint-junit.xml
+    paths:
+      - geolint-report.json
+      - geolint-report.html
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

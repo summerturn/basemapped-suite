@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum MapStatus {
+  PENDING
+  PROCESSING
+  READY
+  ERROR
+  ARCHIVED
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ---------------------------------------------------------------------------
+// Map
+// ---------------------------------------------------------------------------
+
+model Map {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String?   @map("user_id")
+  anonymousToken  String?   @map("anonymous_token")
+  name            String
+  description     String?
+  status          MapStatus @default(PENDING)
+  isPublic        Boolean   @default(false) @map("is_public")
+  columnMapping   Json?     @map("column_mapping") @db.JsonB
+  styleConfig     Json?     @map("style_config") @db.JsonB
+  sourceFileUrl   String?   @map("source_file_url")
+  sourceFileName  String?   @map("source_file_name")
+  rowCount        Int?      @map("row_count")
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  points      Point[]
+  shareLinks  ShareLink[]
+  geocodeJobs GeocodeJob[]
+
+  @@index([userId])
+  @@index([anonymousToken])
+  @@index([status])
+  @@index([isPublic])
+  @@index([expiresAt])
+  @@map("maps")
+}
+
+// ---------------------------------------------------------------------------
+// Point  —  physically partitioned by HASH(map_id) in raw SQL migration
+// ---------------------------------------------------------------------------
+
+model Point {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mapId       String    @map("map_id") @db.Uuid
+  lat         Float       @db.DoublePrecision
+  lng         Float       @db.DoublePrecision
+  geom        Unsupported("geometry(Point, 4326)")?
+  properties  Json?     @db.JsonB
+  geocodedAt  DateTime? @map("geocoded_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  map Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
+
+  @@index([mapId])
+  @@index([lat, lng])
+  @@index([createdAt])
+  @@map("points")
+}
+
+// ---------------------------------------------------------------------------
+// ShareLink  —  token-based public sharing
+// ---------------------------------------------------------------------------
+
+model ShareLink {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mapId       String    @map("map_id") @db.Uuid
+  token       String    @unique
+  name        String?
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  map Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
+
+  @@index([mapId])
+  @@index([token])
+  @@map("share_links")
+}
+
+// ---------------------------------------------------------------------------
+// GeocodeJob  —  tracks address → lat/lng progress per map
+// ---------------------------------------------------------------------------
+
+model GeocodeJob {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mapId           String    @map("map_id") @db.Uuid
+  status          JobStatus @default(QUEUED)
+  totalRows       Int       @map("total_rows")
+  processedRows   Int       @default(0) @map("processed_rows")
+  failedRows      Int       @default(0) @map("failed_rows")
+  errors          Json?     @db.JsonB
+  startedAt       DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  map Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
+
+  @@index([mapId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("geocode_jobs")
+}
+
+// ---------------------------------------------------------------------------
+// UserSettings  —  Clerk user preferences & premium state
+// ---------------------------------------------------------------------------
+
+model UserSettings {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @unique @map("user_id")
+  preferences   Json?    @db.JsonB
+  isPremium     Boolean  @default(false) @map("is_premium")
+  storageUsed   BigInt   @default(0) @map("storage_used")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("user_settings")
+}

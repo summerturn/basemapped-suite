@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Basemapped Geospatial SaaS — Cross-Product Integration API
+  version: 1.0.0
+  description: |
+    Integration contracts between GeoVerify, MapDrop, EternalMap, GeoLint, and AquaMap.
+    All services communicate via internal service mesh on the `basemapped-internal` network.
+
+servers:
+  - url: http://integrations.internal
+
+paths:
+  # ── GeoLint → MapDrop ──────────────────────────────────────────────
+  /mapdrop/integrations/validate-upload:
+    post:
+      summary: MapDrop validates an uploaded dataset through GeoLint
+      operationId: validateMapDropUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [datasetUrl, mapId]
+              properties:
+                datasetUrl: { type: string, format: uri }
+                mapId: { type: string, format: uuid }
+                ruleSet: { type: string, enum: [minimal, standard, strict], default: standard }
+      responses:
+        '200':
+          description: Validation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  score: { type: number, minimum: 0, maximum: 100 }
+                  grade: { type: string }
+                  issues: { type: array, items: { type: object } }
+                  reportUrl: { type: string }
+
+  # ── GeoLint → AquaMap ──────────────────────────────────────────────
+  /aquamap/integrations/validate-import:
+    post:
+      summary: AquaMap validates an asset import through GeoLint
+      operationId: validateAquaMapImport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileKey, utilityId]
+              properties:
+                fileKey: { type: string }
+                utilityId: { type: string, format: uuid }
+                importType: { type: string, enum: [csv, shapefile], default: csv }
+                ruleSet: { type: string, default: standard }
+      responses:
+        '200':
+          description: Import validation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  score: { type: number }
+                  passedRows: { type: integer }
+                  failedRows: { type: integer }
+                  reportUrl: { type: string }
+
+  # ── MapDrop → GeoVerify ────────────────────────────────────────────
+  /geoverify/integrations/assert-map:
+    post:
+      summary: Run GeoVerify spatial assertions on MapDrop map data
+      operationId: assertMapDropData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mapId, assertions]
+              properties:
+                mapId: { type: string, format: uuid }
+                assertions:
+                  type: array
+                  items:
+                    type: object
+                    required: [type, params]
+                    properties:
+                      type: { type: string, enum: [geometry_valid, within_distance, intersects, area_within] }
+                      params: { type: object }
+      responses:
+        '200':
+          description: Assertion results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  passed: { type: boolean }
+                  results: { type: array }
+
+  # ── AquaMap → MapDrop ──────────────────────────────────────────────
+  /mapdrop/integrations/render-assets:
+    post:
+      summary: AquaMap renders utility assets via MapDrop tile engine
+      operationId: renderAquaMapAssets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [utilityId, assetIds]
+              properties:
+                utilityId: { type: string, format: uuid }
+                assetIds: { type: array, items: { type: string } }
+                style: { type: string, enum: [default, satellite, utility], default: utility }
+      responses:
+        '200':
+          description: Rendered map metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mapId: { type: string }
+                  tileUrl: { type: string }
+                  bounds: { type: object }
+
+  # ── Shared Webhooks ────────────────────────────────────────────────
+  /webhooks/cross-product:
+    post:
+      summary: Receive cross-product events
+      operationId: receiveCrossProductEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event, source, payload]
+              properties:
+                event: { type: string, enum: [validation.completed, upload.processed, import.completed, assertion.failed, map.rendered] }
+                source: { type: string, enum: [geolint, mapdrop, aquamap, geoverify, eternalmap] }
+                payload: { type: object }
+                timestamp: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Event received

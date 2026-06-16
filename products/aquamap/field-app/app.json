@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "AquaMap Field",
+    "slug": "aquamap-field",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0284c7"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aquamap.field",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "AquaMap Field uses your location to show nearby water assets and verify inspection locations.",
+        "NSCameraUsageDescription": "AquaMap Field uses the camera to capture inspection photos and asset images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0284c7"
+      },
+      "package": "com.aquamap.field",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-location",
+      "expo-camera"
+    ],
+    "extra": {
+      "apiBaseUrl": "https://api.aquamap.io"
+    }
+  }
+}

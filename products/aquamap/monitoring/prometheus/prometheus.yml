@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'aquamap-backend'
+    static_configs:
+      - targets: ['backend:3002']
+    metrics_path: /metrics
+
+  - job_name: 'aquamap-dashboard'
+    static_configs:
+      - targets: ['dashboard:3003']
+    metrics_path: /metrics

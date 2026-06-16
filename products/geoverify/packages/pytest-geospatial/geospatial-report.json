@@ -1,0 +1,280 @@
+{
+  "summary": {
+    "total": 45,
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_valid",
+      "outcome": "passed",
+      "duration": 0.00018095900304615498,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_equals",
+      "outcome": "passed",
+      "duration": 8.712499402463436e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_equals_failure",
+      "outcome": "passed",
+      "duration": 0.00011824999819509685,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_contains",
+      "outcome": "passed",
+      "duration": 9.737501386553049e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_contains_failure",
+      "outcome": "passed",
+      "duration": 8.591701043769717e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_intersects",
+      "outcome": "passed",
+      "duration": 0.00024783299886621535,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_geometry_intersects_failure",
+      "outcome": "passed",
+      "duration": 7.700000423938036e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_within_distance",
+      "outcome": "passed",
+      "duration": 6.408299668692052e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_within_distance_failure",
+      "outcome": "passed",
+      "duration": 7.599999662488699e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_area_within",
+      "outcome": "passed",
+      "duration": 7.81250128056854e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_area_within_min_failure",
+      "outcome": "passed",
+      "duration": 8.216701098717749e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_area_within_max_failure",
+      "outcome": "passed",
+      "duration": 8.470899774692953e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_is_simple",
+      "outcome": "passed",
+      "duration": 6.220798240974545e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_is_simple_failure",
+      "outcome": "passed",
+      "duration": 6.954200216569006e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_is_ring",
+      "outcome": "passed",
+      "duration": 6.066597416065633e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_assertions.py::test_is_ring_failure",
+      "outcome": "passed",
+      "duration": 6.61670055706054e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_geodataframe_valid",
+      "outcome": "passed",
+      "duration": 0.00015949999215081334,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_geodataframe_crs",
+      "outcome": "passed",
+      "duration": 0.0001355840067844838,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_geodataframe_crs_fail",
+      "outcome": "passed",
+      "duration": 0.0004914170131087303,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_no_overlaps",
+      "outcome": "passed",
+      "duration": 0.00010400000610388815,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_no_overlaps_fail",
+      "outcome": "passed",
+      "duration": 0.00010925001697614789,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_bounds_within",
+      "outcome": "passed",
+      "duration": 0.00016475000302307308,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_bounds_within_fail",
+      "outcome": "passed",
+      "duration": 0.00013112500892020762,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_row_count",
+      "outcome": "passed",
+      "duration": 4.520799848251045e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_row_count_min_fail",
+      "outcome": "passed",
+      "duration": 5.537501419894397e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_row_count_max_fail",
+      "outcome": "passed",
+      "duration": 5.5625016102567315e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_column_exists",
+      "outcome": "passed",
+      "duration": 5.3916999604552984e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_column_exists_fail",
+      "outcome": "passed",
+      "duration": 6.0582999140024185e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_geometry_type",
+      "outcome": "passed",
+      "duration": 0.00036083298618905246,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_assert_geometry_type_fail",
+      "outcome": "passed",
+      "duration": 0.00028887498774565756,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_geo_tolerance",
+      "outcome": "passed",
+      "duration": 4.2458006646484137e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_sample_point",
+      "outcome": "passed",
+      "duration": 6.575000588782132e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_sample_polygon",
+      "outcome": "passed",
+      "duration": 0.00010629100142978132,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_sample_geodataframe",
+      "outcome": "passed",
+      "duration": 8.908301242627203e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_epsg_4326",
+      "outcome": "passed",
+      "duration": 4.983300459571183e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_fixture_epsg_3857",
+      "outcome": "passed",
+      "duration": 5.308300023898482e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_reporter_writes_json",
+      "outcome": "passed",
+      "duration": 0.00029024999821558595,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_cloud_client_upload",
+      "outcome": "passed",
+      "duration": 0.00976791701395996,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_dataframe.py::test_cloud_client_file_not_found",
+      "outcome": "passed",
+      "duration": 0.00026691597304306924,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_equal_pass",
+      "outcome": "passed",
+      "duration": 9.35420102905482e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_equal_fail",
+      "outcome": "passed",
+      "duration": 0.0001010000123642385,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_is_geographic_pass",
+      "outcome": "passed",
+      "duration": 6.141699850559235e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_is_geographic_fail",
+      "outcome": "passed",
+      "duration": 6.874999962747097e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_is_projected_pass",
+      "outcome": "passed",
+      "duration": 5.1749986596405506e-05,
+      "markers": []
+    },
+    {
+      "nodeid": "tests/test_validators.py::test_crs_is_projected_fail",
+      "outcome": "passed",
+      "duration": 6.045898771844804e-05,
+      "markers": []
+    }
+  ]
+}

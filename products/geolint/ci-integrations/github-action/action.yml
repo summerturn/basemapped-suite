@@ -1,0 +1,39 @@
+name: 'GeoLint'
+description: 'Validate geospatial datasets with GeoLint'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+inputs:
+  api-key:
+    description: 'GeoLint API key'
+    required: true
+  files:
+    description: 'Glob pattern for files to validate'
+    required: false
+    default: '**/*.geojson'
+  rule-set:
+    description: 'Rule set to use (standard, strict, minimal)'
+    required: false
+    default: 'standard'
+  fail-threshold:
+    description: 'Minimum score to pass (0-100)'
+    required: false
+    default: '80'
+  annotate:
+    description: 'Annotate files with issues'
+    required: false
+    default: 'true'
+  comment-on-pr:
+    description: 'Post a comment on PRs with results'
+    required: false
+    default: 'true'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    GEOLINT_API_KEY: ${{ inputs.api-key }}
+    GEOLINT_FILES: ${{ inputs.files }}
+    GEOLINT_RULE_SET: ${{ inputs.rule-set }}
+    GEOLINT_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
+    GEOLINT_ANNOTATE: ${{ inputs.annotate }}
+    GEOLINT_COMMENT_ON_PR: ${{ inputs.comment-on-pr }}

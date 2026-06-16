@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoLint Quality Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+    .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+    .cover { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border-radius: 16px; padding: 60px 40px; margin-bottom: 40px; }
+    .cover h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 8px; }
+    .cover .subtitle { opacity: 0.8; font-size: 1.1rem; }
+    .cover .meta { margin-top: 24px; display: flex; gap: 24px; font-size: 0.9rem; opacity: 0.7; }
+    .score-card { background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 40px; }
+    .score-value { font-size: 5rem; font-weight: 800; line-height: 1; }
+    .score-grade { font-size: 2rem; font-weight: 700; margin-top: 8px; }
+    .score-status { display: inline-block; padding: 6px 16px; border-radius: 999px; font-size: 0.875rem; font-weight: 600; margin-top: 12px; }
+    .grade-a { color: #059669; }
+    .grade-b { color: #0284c7; }
+    .grade-c { color: #d97706; }
+    .grade-d { color: #ea580c; }
+    .grade-f { color: #dc2626; }
+    .status-passed { background: #d1fae5; color: #065f46; }
+    .status-warning { background: #fef3c7; color: #92400e; }
+    .status-failed { background: #fee2e2; color: #991b1b; }
+    .categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+    .category-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .category-card h3 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 8px; }
+    .category-score { font-size: 2rem; font-weight: 700; }
+    .category-bar { height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+    .category-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .section { background: white; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .section h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 12px 16px; background: #f8fafc; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; }
+    tr:hover td { background: #f8fafc; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .badge-error { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+    .recommendations { list-style: none; }
+    .recommendations li { padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 12px; }
+    .recommendations li::before { content: '→'; color: #0ea5e9; font-weight: 700; }
+    @media print { body { background: white; } .container { padding: 20px; max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cover">
+      <h1>GeoLint Quality Report</h1>
+      <p class="subtitle">Geospatial Data Quality Assessment</p>
+      <div class="meta">
+        <span>Dataset: {{ dataset_name }}</span>
+        <span>Date: {{ report_date }}</span>
+        <span>Ruleset: {{ rule_set }}</span>
+      </div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-value grade-{{ grade_class }}">{{ overall_score }}</div>
+      <div class="score-grade grade-{{ grade_class }}">Grade {{ grade }}</div>
+      <span class="score-status status-{{ status_class }}">{{ status }}</span>
+    </div>
+
+    <div class="categories">
+      {% for cat in categories %}
+      <div class="category-card">
+        <h3>{{ cat.name }}</h3>
+        <div class="category-score" style="color: {{ cat.color }}">{{ cat.score }}</div>
+        <div class="category-bar"><div class="category-bar-fill" style="width: {{ cat.score }}%; background: {{ cat.color }}"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="section">
+      <h2>Issue Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Rule</th><th>Category</th><th>Severity</th><th>Issues</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          {% for rule in rules %}
+          <tr>
+            <td>{{ rule.name }}</td>
+            <td>{{ rule.category }}</td>
+            <td><span class="badge badge-{{ rule.severity_class }}">{{ rule.severity }}</span></td>
+            <td>{{ rule.issue_count }}</td>
+            <td><strong>{{ rule.score }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Recommendations</h2>
+      <ul class="recommendations">
+        {% for rec in recommendations %}
+        <li>{{ rec }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
